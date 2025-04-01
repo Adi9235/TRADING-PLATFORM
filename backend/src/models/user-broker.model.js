@@ -10,11 +10,6 @@ const userBrokerSchema = mongoose.Schema({
     ref: "User",
   },
 
-  connectionDetails: {
-    type: Map,
-    of: String,
-    required: true,
-  },
   isConnected: {
     type: Boolean,
     default: false,
@@ -24,6 +19,9 @@ const userBrokerSchema = mongoose.Schema({
     type: String,
   },
   refreshToken: {
+    type: String,
+  },
+  feedToken: {
     type: String,
   },
 });

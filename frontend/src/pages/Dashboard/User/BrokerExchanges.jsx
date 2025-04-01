@@ -297,13 +297,13 @@ const BrokerExchange = () => {
                       </button>
                     </div>
                   ) : (
-                    <button
+                    <a
                       className="w-full mt-2 flex items-center justify-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors"
-                      onClick={() => handleConnect(broker._id)}
+                      href={broker?.apiUrl}
                     >
                       <LinkIcon size={14} className="mr-2" />
                       Connect Account
-                    </button>
+                    </a>
                   )}
                 </div>
               </div>

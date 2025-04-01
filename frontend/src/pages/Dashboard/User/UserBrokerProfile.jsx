@@ -9,12 +9,14 @@ import UserTradeBook from "../../../components/Dashboard/UserTradeBook";
 import UserOrderBook from "../../../components/Dashboard/UserOrderBook";
 import UserPositions from "../../../components/Dashboard/UserPositions";
 import UserRMS from "../../../components/Dashboard/UserRMS";
+import BrokerPlaceOrder from "../../../components/Common/BrokerPlaceOrder";
 
 const UserBrokerProfile = () => {
   const { brokerId, userId } = useParams();
   const [broker, setBroker] = useState();
   const [activeTab, setActiveTab] = useState("rms");
   const [loading, setLoading] = useState(true);
+  const [placeOrder, setPlaceOrder] = useState(false);
 
   console.log(userId);
 
@@ -43,7 +45,7 @@ const UserBrokerProfile = () => {
     fetchBroker();
   }, [brokerId]);
 
-  // Sample data - replace with API calls in production
+  const fetchUserHoldings = () => {};
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -78,7 +80,11 @@ const UserBrokerProfile = () => {
             />
 
             {/* Stats Cards */}
-            <UserHoldings brokerId={brokerId} userId={userId} />
+            <UserHoldings
+              setPlaceOrder={setPlaceOrder}
+              brokerId={brokerId}
+              userId={userId}
+            />
 
             {/* LTP Data Cards */}
 
@@ -145,6 +151,17 @@ const UserBrokerProfile = () => {
                   <UserOrderBook brokerId={brokerId} userId={userId} />
                 )}
               </div>
+
+              {placeOrder && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white rounded-lg shadow-xl max-w-md w-full animate-fadeIn">
+                    <BrokerPlaceOrder
+                      brokerId={brokerId}
+                      setPlaceOrder={setPlaceOrder}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}

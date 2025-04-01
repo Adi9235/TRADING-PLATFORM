@@ -64,7 +64,7 @@ export const handleEditBrokerController = async (req, res) => {
   try {
     const {
       _id,
-
+      apiUrl,
       logo,
       supportedExchanges,
       apiKey,
@@ -86,7 +86,7 @@ export const handleEditBrokerController = async (req, res) => {
         message: "Broker not found",
       });
     }
-
+    if (apiUrl) broker.apiUrl = apiUrl;
     if (logo) broker.logo = logo;
     if (supportedExchanges) broker.supportedExchanges = supportedExchanges;
     if (apiKey) broker.apiKey = apiKey;

@@ -86,6 +86,65 @@ export const handleConnectBrokerHandler = async (req, res) => {
     res.status(500).json({ success: false, message: "Server Error", error });
   }
 };
+
+export const handleConnectBrokerCallbackHandler = async (req, res) => {
+  const { _id: userId } = req.user;
+  const { brokerId, authToken, refreshToken, feedToken } = req.body;
+
+  if (!brokerId) {
+    console.error("Broker ID is missing");
+    return res.status(404).json({
+      success: false,
+      message: "Broker Id is missing",
+    });
+  }
+
+  try {
+    console.log("Fetching broker details from DB...");
+    const broker = await Broker.findOne({
+      brokerId: brokerId,
+    });
+
+    if (!broker) {
+      console.error("Broker not found in DB");
+      return res
+        .status(404)
+        .json({ success: false, message: "Broker not found" });
+    }
+
+    let userAngelOneBroker = await UserBroker.findOne({
+      brokerId: broker?._id,
+      userId,
+    });
+
+    if (userAngelOneBroker) {
+      userAngelOneBroker.isConnected = true;
+      userAngelOneBroker.jwtToken = authToken;
+      userAngelOneBroker.refreshToken = refreshToken;
+      userAngelOneBroker.feedToken = feedToken;
+      await userAngelOneBroker.save();
+    } else {
+      userAngelOneBroker = new UserBroker({
+        userId,
+        brokerId: broker._id,
+        isConnected: true,
+        jwtToken: authToken,
+        refreshToken: refreshToken,
+        feedToken: feedToken,
+      });
+      await userAngelOneBroker.save();
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully connected to ${broker.name}`,
+    });
+  } catch (error) {
+    console.error("Error connecting to broker:", error);
+    res.status(500).json({ success: false, message: "Server Error", error });
+  }
+};
+
 export const handleDisconnectBrokerHandler = async (req, res) => {
   try {
     const { brokerId } = req.body;
@@ -905,5 +964,138 @@ export const getUserRMS = async (req, res) => {
       message: "Internal Server Error.",
       error: error.message,
     });
+  }
+};
+
+export const handlePlaceOrderHandler = async (req, res) => {
+  const {
+    brokerId,
+    variety,
+    tradingsymbol,
+    symboltoken,
+    transactiontype,
+    exchange,
+    ordertype,
+    producttype,
+    duration,
+    disclosedquantity,
+    quantity,
+  } = req.body;
+
+  const requiredFields = [
+    brokerId,
+    variety,
+    tradingsymbol,
+    symboltoken,
+    transactiontype,
+    exchange,
+    ordertype,
+    producttype,
+    duration,
+    disclosedquantity,
+    quantity,
+  ];
+
+  if (requiredFields.some((field) => !field)) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
+
+  try {
+    const broker = await Broker.findById(brokerId);
+    if (!broker) {
+      return res.status(404).json({
+        success: false,
+        message: "Broker not found",
+      });
+    }
+
+    const userBroker = await UserBroker.findOne({
+      brokerId: broker._id,
+      userId: req.user._id,
+    });
+
+    if (!userBroker || !userBroker.isConnected) {
+      return res.status(404).json({
+        success: false,
+        message: "User broker connection not established or expired",
+      });
+    }
+
+    switch (broker.brokerId) {
+      case "ANGEL_ONE":
+        if (!userBroker.jwtToken) {
+          return res.status(401).json({
+            success: false,
+            message: "Authentication failed: Missing JWT Token.",
+          });
+        }
+
+        const response = await placeOrderAngelOne(broker, userBroker, req.body);
+        if (response?.data?.status === false) {
+          return res.status(400).json({
+            success: false,
+            message: response?.data?.message || "Failed to place order.",
+            error: response?.data,
+          });
+        }
+        return res.status(200).json({
+          success: true,
+          message: response?.data?.message || "Order placed successfully",
+          data: response.data,
+        });
+
+      default:
+        return res.status(400).json({
+          success: false,
+          message: "Unsupported broker",
+        });
+    }
+  } catch (error) {
+    console.error("Error placing order:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+const placeOrderAngelOne = async (broker, userBroker, orderDetails) => {
+  try {
+    const response = await axios.post(
+      "https://apiconnect.angelone.in/rest/secure/angelbroking/order/v1/placeOrder",
+      {
+        exchange: orderDetails.exchange,
+        tradingsymbol: orderDetails.tradingsymbol,
+        symboltoken: orderDetails.symboltoken,
+        quantity: Number(orderDetails.quantity),
+        disclosedquantity: Number(orderDetails.disclosedquantity),
+        transactiontype: orderDetails.transactiontype,
+        ordertype: orderDetails.ordertype,
+        variety: orderDetails.variety,
+        producttype: orderDetails.producttype,
+        duration: orderDetails.duration,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${userBroker.jwtToken}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-UserType": "USER",
+          "X-SourceID": "WEB",
+          "X-PrivateKey": broker.apiKey,
+          "X-ClientLocalIP": "103.120.251.200",
+          "X-ClientPublicIP": "103.120.251.200",
+          "X-MACAddress": "00:00:00:00:00:00",
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Error placing order with Angel One:", error);
+    throw new Error("Failed to place order with Angel One");
   }
 };

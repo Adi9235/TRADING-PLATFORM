@@ -23,7 +23,7 @@ const StatsCard = ({ title, value, icon, color, textColor }) => {
   );
 };
 
-const UserHoldings = ({ brokerId, userId }) => {
+const UserHoldings = ({ brokerId, userId, setPlaceOrder }) => {
   const [userHoldings, setUserHoldings] = useState(null);
   const [holdingsData, setHoldingsData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -169,6 +169,15 @@ const UserHoldings = ({ brokerId, userId }) => {
         />
       </div>
 
+      <div className="flex items-end justify-end">
+        <button
+          type="button"
+          onClick={() => setPlaceOrder(true)}
+          className="px-6 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Place Order
+        </button>
+      </div>
       {holdingsData.length > 0 && (
         <div className="bg-white rounded-lg shadow-md p-4 mt-6">
           <h2 className="text-lg font-semibold mb-4">Your Holdings</h2>

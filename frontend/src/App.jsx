@@ -17,6 +17,7 @@ import AllUsers from "./pages/Dashboard/Admin/AllUsers";
 import UserBrokerProfile from "./pages/Dashboard/User/UserBrokerProfile";
 import UserPage from "./pages/Dashboard/Admin/UserPage";
 import ProtectedRoutes from "./components/Common/ProtectedRoutes";
+import BrokerCallbackPage from "./pages/Auth/BrokerCallbackPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/callback" element={<BrokerCallbackPage />} />
           <Route
             path="/dashboard/user"
             element={

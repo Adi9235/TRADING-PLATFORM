@@ -10,12 +10,15 @@ import {
   getUserPositions,
   getUserRMS,
   handleDisconnectBrokerHandler,
+  handleConnectBrokerCallbackHandler,
+  handlePlaceOrderHandler,
 } from "../controllers/user-broker.controller.js";
 
 const router = express.Router();
 
 router.get("/all", verifyToken, getAllUserBrokers);
-router.post("/connect", verifyToken, handleConnectBrokerHandler);
+router.post("/connect", verifyToken, handleConnectBrokerCallbackHandler);
+router.post("/place-order", verifyToken, handlePlaceOrderHandler);
 router.post("/disconnect", verifyToken, handleDisconnectBrokerHandler);
 router.get("/:brokerId/profile", verifyToken, getUserBrokerProfile);
 router.get("/:brokerId/all-holdings", verifyToken, getUserAllHoldings);

@@ -53,5 +53,6 @@ export const editBrokerSchema = Joi.object({
     .required(),
   apiKey: Joi.string().trim().optional(),
   apiSecret: Joi.string().trim().optional(),
+  apiUrl: Joi.string().trim().optional(),
   connectionFields: Joi.array().items(Joi.string()).unique().required(),
 });
