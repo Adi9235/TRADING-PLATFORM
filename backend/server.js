@@ -33,6 +33,6 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/brokers", brokerRoutes);
 app.use("/api/v1/user-brokers", userBrokerRoutes);
 
-app.listen(4000, () => {
-  console.log("App is live on 4000 port");
+app.listen(3000, () => {
+  console.log("App is live on 3000 port");
 });
