@@ -28,7 +28,7 @@ app.use(
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
-app.get("/",(res,res)=>res.send("Trading App"))
+app.get("/", (req, res) => res.send("Trading App"));
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/brokers", brokerRoutes);
