@@ -20,7 +20,10 @@ let smartAPI = new SmartAPI({
 connectDB();
 
 app.use(
-  cors()
+  cors({
+    origin: "https://trading-platform-snowy.vercel.app",
+    credentials: true,
+  })
 );
 
 
