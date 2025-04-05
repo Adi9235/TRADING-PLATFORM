@@ -19,14 +19,29 @@ let smartAPI = new SmartAPI({
 
 connectDB();
 
+const allowedOrigins = [
+  "https://trading-platform-snowy.vercel.app", 
+  "http://localhost:3000", 
+  "http://localhost:5173", 
+];
+
 app.use(
   cors({
-    origin: "https://trading-platform-snowy.vercel.app",
+    origin: function (origin, callback) {
+      
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
 
 
+app.options("*", cors());
 
 
 app.use(express.json({ limit: "50mb" }));
