@@ -20,11 +20,7 @@ let smartAPI = new SmartAPI({
 connectDB();
 
 app.use(
-  cors({
-    origin: ["https://trading-platform-snowy.vercel.app"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true, 
-  })
+  cors()
 );
 
 
